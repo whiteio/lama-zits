@@ -12,8 +12,8 @@ import cv2
 
 from model_manager import ModelManager
 from helper import norm_img
-from schema import HDStrategy, LDMSampler
-from lama import LaMa
+from schema import Config, HDStrategy, LDMSampler
+from zits import ZITS
 
 NUM_THREADS = str(multiprocessing.cpu_count())
 
@@ -56,7 +56,7 @@ def run():
     device = torch.device('cpu')
 
     # model = ZITS(device=device)
-    model = ModelManager(name='lama', device=device)
+    model = ModelManager(name='zits', device=device)
     # RGB
     # with open("unwant_object_clean.jpg") as image:
     #     origin_image_bytes = image.read()
@@ -65,6 +65,16 @@ def run():
     # hdStrategyResizeLimit: 1024,
     # hdStrategyCropTrigerSize: 1024,
     # hdStrategyCropMargin: 128,
+
+    config = Config(
+        ldm_steps=25,
+        ldm_sampler=LDMSampler.plms,
+        hd_strategy=HDStrategy.CROP,
+        zits_wireframe=True,
+        hd_strategy_crop_margin=128,
+        hd_strategy_crop_trigger_size=1024,
+        hd_strategy_resize_limit=1024,
+    )
 
     f = open('dog_photo.png', 'rb') 
     m = open('masker_image.png', 'rb')
@@ -84,7 +94,7 @@ def run():
 
     mask = resize_max_size(mask, size_limit=size_limit, interpolation=interpolation)
         
-    res_np_img = model(image, mask)
+    res_np_img = model(image, mask, config)
 
     torch.cuda.empty_cache()
 

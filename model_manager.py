@@ -1,7 +1,8 @@
-from lama import LaMa
+from zits import ZITS
+from schema import Config
 
 models = {
-    'lama': LaMa,
+    'zits': ZITS,
 }
 
 class ModelManager:
@@ -23,8 +24,8 @@ class ModelManager:
         else:
             raise NotImplementedError(f"Not supported model: {name}")
 
-    def __call__(self, image, mask):
-        return self.model(image, mask)
+    def __call__(self, image, mask, config: Config):
+        return self.model(image, mask, config)
 
     def switch(self, new_name: str):
         if new_name == self.name:
