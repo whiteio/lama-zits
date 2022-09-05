@@ -55,17 +55,7 @@ def set_input_photo():
 def run():
     device = torch.device('cpu')
 
-    # model = ZITS(device=device)
     model = ModelManager(name='lama', device=device)
-    # RGB
-    # with open("unwant_object_clean.jpg") as image:
-    #     origin_image_bytes = image.read()
-
-    #    hdStrategy: HDStrategy.CROP,
-    # hdStrategyResizeLimit: 1024,
-    # hdStrategyCropTrigerSize: 1024,
-    # hdStrategyCropMargin: 128,
-
     f = open('dog_photo.png', 'rb') 
     m = open('masker_image.png', 'rb')
 
