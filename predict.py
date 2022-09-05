@@ -106,10 +106,10 @@ def run():
         res_np_img = np.concatenate(
             (res_np_img, alpha_channel[:, :, np.newaxis]), axis=-1
         )
-        
+
     ext = get_image_ext(input_image_bytes)
     resulting_bytes = numpy_to_bytes(res_np_img, ext)
 
     final_image = Image.open(io.BytesIO(resulting_bytes))
-    final_image.save('resultant_image.png')
+    final_image.save('resultant_image.{}'.format(ext))
 run()
