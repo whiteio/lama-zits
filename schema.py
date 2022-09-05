@@ -10,3 +10,13 @@ class HDStrategy(str, Enum):
 class LDMSampler(str, Enum):
     ddim = 'ddim'
     plms = 'plms'
+
+
+class Config(BaseModel):
+    ldm_steps: int
+    ldm_sampler: str = LDMSampler.plms
+    zits_wireframe: bool = True
+    hd_strategy: str
+    hd_strategy_crop_margin: int
+    hd_strategy_crop_trigger_size: int
+    hd_strategy_resize_limit: int
