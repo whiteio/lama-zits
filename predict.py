@@ -1,4 +1,5 @@
-from helper import ceil_modulo, resize_max_size
+import io
+from helper import ceil_modulo, load_img, numpy_to_bytes, resize_max_size
 
 
 import multiprocessing
@@ -35,8 +36,6 @@ def get_image_ext(img_bytes):
 model: ModelManager = None
 device = None
 input_image_path: str = None
-
-interpolation = cv2.INTER_CUBIC
 
 def current_model():
     return model.name
@@ -77,16 +76,29 @@ def run():
         hd_strategy_resize_limit=1024,
     )
 
+    f = open('dog_photo.png', 'rb') 
+    m = open('masker_image.png', 'rb')
 
-    image = np.random.randint(0, 256, (512, 512, 3)).astype(np.uint8)
-    image = resize_max_size(image, size_limit=1080, interpolation=interpolation)
-    # image = norm_img(image)
+    input_mask_bytes = m.read()
+    input_image_bytes = f.read()
 
-    mask = np.random.randint(0, 255, (512, 512)).astype(np.uint8)
-    mask = resize_max_size(mask, size_limit=1080, interpolation=interpolation)
+    mask, _ = load_img(input_mask_bytes, gray=True)
+    image, alpha_channel = load_img(input_image_bytes, )
+    print(image)
+
+    interpolation = cv2.INTER_CUBIC
+    original_shape = image.shape
+    size_limit = max(image.shape)
+
+    image = resize_max_size(image, size_limit=size_limit, interpolation=interpolation)
+
+    mask = resize_max_size(mask, size_limit=size_limit, interpolation=interpolation)
+        
     res_np_img = model(image, mask, config)
-    print(res_np_img)
-    print('Ran')
 
+    ext = get_image_ext(input_image_bytes)
+    resulting_bytes = numpy_to_bytes(res_np_img, ext)
 
+    final_image = Image.open(io.BytesIO(resulting_bytes))
+    final_image.save('resultant_image.png')
 run()
