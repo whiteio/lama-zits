@@ -52,19 +52,10 @@ def set_input_photo():
         return "No Input Image" 
 
 
-def run():
+def run(image_path, mask_path):
     device = torch.device('cpu')
 
-    # model = ZITS(device=device)
     model = ModelManager(name='zits', device=device)
-    # RGB
-    # with open("unwant_object_clean.jpg") as image:
-    #     origin_image_bytes = image.read()
-
-    #    hdStrategy: HDStrategy.CROP,
-    # hdStrategyResizeLimit: 1024,
-    # hdStrategyCropTrigerSize: 1024,
-    # hdStrategyCropMargin: 128,
 
     config = Config(
         ldm_steps=25,
@@ -76,8 +67,8 @@ def run():
         hd_strategy_resize_limit=1024,
     )
 
-    f = open('dog_photo.png', 'rb') 
-    m = open('masker_image.png', 'rb')
+    f = open(image_path, 'rb') 
+    m = open(mask_path, 'rb')
 
     input_mask_bytes = m.read()
     input_image_bytes = f.read()
@@ -112,4 +103,8 @@ def run():
 
     final_image = Image.open(io.BytesIO(resulting_bytes))
     final_image.save('resultant_image.{}'.format(ext))
-run()
+    return resulting_bytes, ext
+result_bytes, ext = run('dog_photo.png', 'masker_image.png')
+
+final_image = Image.open(io.BytesIO(result_bytes))
+final_image.save('resultant_image.{}'.format(ext))
