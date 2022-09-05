@@ -96,6 +96,17 @@ def run():
         
     res_np_img = model(image, mask, config)
 
+    torch.cuda.empty_cache()
+
+    if alpha_channel is not None:
+        if alpha_channel.shape[:2] != res_np_img.shape[:2]:
+            alpha_channel = cv2.resize(
+                alpha_channel, dsize=(res_np_img.shape[1], res_np_img.shape[0])
+            )
+        res_np_img = np.concatenate(
+            (res_np_img, alpha_channel[:, :, np.newaxis]), axis=-1
+        )
+        
     ext = get_image_ext(input_image_bytes)
     resulting_bytes = numpy_to_bytes(res_np_img, ext)
 
