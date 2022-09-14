@@ -13,7 +13,7 @@ import cv2
 from model_manager import ModelManager
 from helper import norm_img
 from schema import Config, HDStrategy, LDMSampler
-from zits import ZITS
+from lama import LaMa
 
 NUM_THREADS = str(multiprocessing.cpu_count())
 
@@ -53,18 +53,18 @@ def set_input_photo():
 
 
 def run(image_path, mask_path):
-    device = torch.device('cuda')
+    device = torch.device('cpu')
 
-    model = ModelManager(name='zits', device=device)
+    model = ModelManager(name='lama', device=device)
 
     config = Config(
         ldm_steps=25,
         ldm_sampler=LDMSampler.plms,
-        hd_strategy=HDStrategy.CROP,
-        zits_wireframe=True,
+        hd_strategy=HDStrategy.RESIZE,
+        zits_wireframe=False,
         hd_strategy_crop_margin=128,
-        hd_strategy_crop_trigger_size=1024,
-        hd_strategy_resize_limit=1024,
+        hd_strategy_crop_trigger_size=2048,
+        hd_strategy_resize_limit=2048,
     )
 
     f = open(image_path, 'rb') 

@@ -1,8 +1,8 @@
-from zits import ZITS
+from lama import LaMa
 from schema import Config
 
 models = {
-    'zits': ZITS,
+    'lama': LaMa,
 }
 
 class ModelManager:
