@@ -1,0 +1,5 @@
+torch>=1.8.2
+opencv-python
+pydantic
+loguru
+scikit-image=0.19.3
