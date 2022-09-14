@@ -53,7 +53,7 @@ def set_input_photo():
 
 
 def run(image_path, mask_path):
-    device = torch.device('cpu')
+    device = torch.device('cuda')
 
     model = ModelManager(name='zits', device=device)
 
