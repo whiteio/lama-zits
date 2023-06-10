@@ -9,6 +9,7 @@ import torch
 from PIL import Image
 import numpy as np
 import cv2
+from flask import Flask, request, send_file, make_response
 
 from model_manager import ModelManager
 from helper import norm_img
@@ -51,8 +52,17 @@ def set_input_photo():
     else:
         return "No Input Image" 
 
+app = Flask(__name__)
 
-def run(image_path, mask_path):
+@app.route('/')
+def hello():
+    return 'Hello, World!'
+
+@app.route("/inpaint", methods=["POST"])
+def process():
+    input = request.files
+    origin_image_bytes = input["image"].read()
+    mask_image_bytes = input["mask"].read()
     device = torch.device('cpu')
 
     model = ModelManager(name='lama', device=device)
@@ -67,14 +77,9 @@ def run(image_path, mask_path):
         hd_strategy_resize_limit=2048,
     )
 
-    f = open(image_path, 'rb') 
-    m = open(mask_path, 'rb')
 
-    input_mask_bytes = m.read()
-    input_image_bytes = f.read()
-
-    mask, _ = load_img(input_mask_bytes, gray=True)
-    image, alpha_channel = load_img(input_image_bytes, )
+    mask, _ = load_img(mask_image_bytes, gray=True)
+    image, alpha_channel = load_img(origin_image_bytes, )
     print(image)
 
     interpolation = cv2.INTER_CUBIC
@@ -84,7 +89,7 @@ def run(image_path, mask_path):
     image = resize_max_size(image, size_limit=size_limit, interpolation=interpolation)
 
     mask = resize_max_size(mask, size_limit=size_limit, interpolation=interpolation)
-        
+
     res_np_img = model(image, mask, config)
 
     torch.cuda.empty_cache()
@@ -98,13 +103,14 @@ def run(image_path, mask_path):
             (res_np_img, alpha_channel[:, :, np.newaxis]), axis=-1
         )
 
-    ext = get_image_ext(input_image_bytes)
-    resulting_bytes = numpy_to_bytes(res_np_img, ext)
+    ext = get_image_ext(origin_image_bytes)
 
-    final_image = Image.open(io.BytesIO(resulting_bytes))
-    final_image.save('resultant_image.{}'.format(ext))
-    return resulting_bytes, ext
-result_bytes, ext = run('dog_photo.png', 'masker_image.png')
-
-final_image = Image.open(io.BytesIO(result_bytes))
-final_image.save('resultant_image.{}'.format(ext))
+    response = make_response(
+        send_file(
+            io.BytesIO(numpy_to_bytes(res_np_img, ext)),
+            mimetype=f"image/{ext}",
+        )
+    )
+    return response
+if __name__ == '__main__':
+    app.run()
