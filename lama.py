@@ -11,7 +11,7 @@ from schema import Config
 
 LAMA_MODEL_URL = os.environ.get(
     "LAMA_MODEL_URL",
-    "./model-checkpoints/big-lama.pt",
+    "https://github.com/Sanster/models/releases/download/add_big_lama/big-lama.pt",
 )
 
 
