@@ -3,4 +3,4 @@ opencv-python
 pydantic
 loguru
 flask
-scikit-image==0.19.3
+scikit-image
