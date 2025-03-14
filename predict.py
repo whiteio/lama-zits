@@ -34,8 +34,14 @@ def get_image_ext(img_bytes):
         w = "jpeg"
     return w
 
-model: ModelManager = None
-device = None
+if torch.backends.mps.is_available():
+    device = torch.device('mps')
+elif torch.cuda.is_available():
+    device = torch.device('cuda')
+else:
+    device = torch.device('cpu')
+print(f"Running model on: {device}")
+model = ModelManager(name='lama', device=device)
 input_image_path: str = None
 
 def current_model():
@@ -63,9 +69,6 @@ def process():
     input = request.files
     origin_image_bytes = input["image"].read()
     mask_image_bytes = input["mask"].read()
-    device = torch.device('cpu')
-
-    model = ModelManager(name='lama', device=device)
 
     config = Config(
         ldm_steps=25,
